@@ -174,6 +174,7 @@ class ViterbiDecoder(ABC, Generic[S, X]):
         trellis = self.trellis
         trellis_depth = len(trellis)
         num_states = len(trellis[-1])
+        print(f"Decoding {len(samps)} samples with trellis depth {trellis_depth} and {num_states} states...")
 
         # Prime the trellis.
         first_col = np.array([self.prob(s, samps[0]) for s in range(num_states)])
@@ -182,6 +183,11 @@ class ViterbiDecoder(ABC, Generic[S, X]):
             first_col = (1.0 / num_states) * np.ones(num_states)
         sum_tot = first_col.sum()
         first_col /= sum_tot
+        # Pair each state's priming probability with a back-pointer.
+        # `range(num_states)` makes each state point to *itself*: this is the first
+        # (oldest) column, so there is no real predecessor yet -- the self-index is
+        # just a type-valid placeholder. Real back-pointers are computed later, in
+        # `step_trellis()` (see the `prevs` it pairs with `probs`).
         trellis[-1] = list(zip(first_col, range(num_states)))
         for x in samps[1: trellis_depth]:
             self.step_trellis(x, priming=True)

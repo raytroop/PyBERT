@@ -15,7 +15,13 @@ A refactoring of the `pybert.utility` module, as per Issue #147.
 
 from .channel    import *   # noqa: F401,F403
 from .functional import *   # noqa: F401,F403
-from .ibisami    import *   # noqa: F401,F403
+try:
+    from .ibisami import *  # noqa: F401,F403
+except ImportError:
+    # `ibisami` requires the optional `pyibisami` dependency. Allow the rest of
+    # `pybert.utility` (and consumers like `pybert.models.viterbi`) to import
+    # without it; only IBIS-AMI functionality is unavailable when it's missing.
+    pass
 from .jitter     import *   # noqa: F401,F403
 from .math       import *   # noqa: F401,F403
 from .python     import *   # noqa: F401,F403
